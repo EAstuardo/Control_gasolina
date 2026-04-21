@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Combustible — Recolectora</title>
+<link rel="stylesheet" href="recolectora.css">
+</head>
+<body>
+
+<!-- Navegación -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🚛</div>
+    Recolectora
+  </div>
+  <div class="nav-spacer"></div>
+  <a href="camiones.html"    class="nav-link">🚛 Camiones</a>
+  <a href="combustible.html" class="nav-link active">⛽ Combustible</a>
+</nav>
+
+<!-- Contenido principal -->
+<main class="main">
+
+  <!-- Encabezado -->
+  <div class="page-header">
+    <div>
+      <h1>⛽ Combustible</h1>
+      <p id="subtitulo-pagina">Historial de cargas de toda la flota</p>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-secondary" id="btn-limpiar-filtro" onclick="limpiarFiltroCamion()" style="display:none">
+        ✕ Ver toda la flota
+      </button>
+      <button class="btn btn-primary" onclick="abrirModalRegistro()">
+        + Registrar carga
+      </button>
+    </div>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="stats" id="stats-container">
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-label">Total cargas</div>
+      <div class="stat-value sv-text" id="stat-cargas">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🪣</div>
+      <div class="stat-label">Litros totales</div>
+      <div class="stat-value sv-verde" id="stat-litros">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Gasto total</div>
+      <div class="stat-value sv-amarillo" id="stat-gasto">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-label">Última carga</div>
+      <div class="stat-value sv-text" id="stat-ultima" style="font-size:18px">—</div>
+    </div>
+  </div>
+
+  <!-- Tabla de historial -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Historial de cargas</span>
+      <span id="total-label" style="font-size:12px;color:var(--text3)"></span>
+    </div>
+    <div class="card-body">
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <input class="search-input" id="search-input" type="text"
+          placeholder="Buscar por placa o proveedor..." oninput="filtrar()">
+        <select class="filter-select" id="filter-camion" onchange="filtrar()">
+          <option value="">Todos los camiones</option>
+        </select>
+        <select class="filter-select" id="filter-mes" onchange="filtrar()">
+          <option value="">Todos los meses</option>
+        </select>
+      </div>
+
+      <!-- Alertas -->
+      <div class="alert alert-ok"  id="alert-ok" >✓ <span id="alert-ok-msg"></span></div>
+      <div class="alert alert-err" id="alert-err">✗ <span id="alert-err-msg"></span></div>
+
+      <!-- Tabla -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Camión</th>
+              <th>Litros</th>
+              <th>Precio/L</th>
+              <th>Total</th>
+              <th>Proveedor</th>
+              <th>Recibo</th>
+              <th>Notas</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="9">
+              <div class="loader">
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                Cargando historial...
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totales del filtro activo -->
+      <div id="fila-totales" style="display:none; margin-top:16px; padding-top:14px; border-top:1.5px solid var(--border); display:flex; gap:24px; flex-wrap:wrap; justify-content:flex-end;">
+        <span style="font-size:12px;color:var(--text3)">Subtotales del filtro:</span>
+        <span style="font-size:13px;font-weight:600">🪣 <span id="sub-litros">—</span> L</span>
+        <span style="font-size:13px;font-weight:600;color:var(--verde-oscuro)">💰 Q<span id="sub-gasto">—</span></span>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- Modal: registrar carga -->
+<div class="modal-overlay" id="modal-registro">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">⛽ Registrar carga de combustible</span>
+      <button class="modal-close" onclick="cerrarModal('modal-registro')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="alert alert-err" id="form-err">✗ <span id="form-err-msg"></span></div>
+
+      <form id="form-carga" onsubmit="registrarCarga(event)">
+
+        <!-- Camión -->
+        <div class="form-group">
+          <label class="form-label">Camión <span class="req">*</span></label>
+          <select class="form-select" id="f-camion" required onchange="autocompletarPlaca()">
+            <option value="">Selecciona un camión...</option>
+          </select>
+        </div>
+
+        <!-- Fecha y proveedor -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fecha <span class="req">*</span></label>
+            <input class="form-input" id="f-fecha" type="date" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Proveedor / Gasolinera</label>
+            <input class="form-input" id="f-proveedor" type="text" placeholder="Ej: Puma, Shell...">
+          </div>
+        </div>
+
+        <!-- Litros, precio y total -->
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Litros <span class="req">*</span></label>
+            <input class="form-input" id="f-litros" type="number" min="0.01" step="0.01"
+              placeholder="0.00" required oninput="calcularTotal()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Precio / litro <span class="req">*</span></label>
+            <input class="form-input" id="f-precio" type="number" min="0.01" step="0.01"
+              placeholder="0.00" required oninput="calcularTotal()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total <span class="form-hint">(auto)</span></label>
+            <input class="form-input" id="f-total" type="number" min="0" step="0.01"
+              placeholder="0.00" readonly style="background:var(--surface2);color:var(--verde-oscuro);font-weight:600">
+          </div>
+        </div>
+
+        <!-- Notas -->
+        <div class="form-group">
+          <label class="form-label">Notas <span class="form-hint">(opcional)</span></label>
+          <textarea class="form-textarea" id="f-notas" placeholder="Observaciones adicionales..."></textarea>
+        </div>
+
+        <!-- Recibo -->
+        <div class="form-group">
+          <label class="form-label">Imagen del recibo <span class="form-hint">(opcional · JPG, PNG, PDF)</span></label>
+          <div class="upload-area" id="upload-area">
+            <input type="file" id="f-recibo" accept="image/*,application/pdf" onchange="previewRecibo(this)">
+            <div id="upload-placeholder">
+              <div class="upload-icon">📎</div>
+              <div class="upload-label">Haz clic o arrastra el recibo aquí</div>
+              <div class="upload-sub">JPG · PNG · PDF · Máx. 5 MB</div>
+            </div>
+            <img id="upload-preview" class="upload-preview" alt="Vista previa del recibo">
+            <div id="upload-filename" style="font-size:12px;color:var(--verde-oscuro);margin-top:6px;font-weight:500;display:none"></div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-registro')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-guardar">💾 Guardar carga</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: ver recibo -->
+<div class="modal-overlay" id="modal-recibo">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <span class="modal-title" id="recibo-titulo">Recibo</span>
+      <button class="modal-close" onclick="cerrarModal('modal-recibo')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center">
+      <img id="recibo-img" src="" alt="Recibo" style="max-width:100%;border-radius:var(--r);box-shadow:var(--shadow-md)">
+      <div id="recibo-pdf-msg" style="padding:32px;color:var(--text2);font-size:13px;display:none">
+        📄 El recibo es un PDF.
+        <a id="recibo-pdf-link" href="#" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:12px;display:inline-flex">
+          Abrir PDF
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: detalle de carga -->
+<div class="modal-overlay" id="modal-detalle">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="detalle-titulo">Detalle de carga</span>
+      <button class="modal-close" onclick="cerrarModal('modal-detalle')">✕</button>
+    </div>
+    <div class="modal-body" id="detalle-body">
+      <div class="loader">
+        <div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>
+        Cargando...
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost/recolectora/api';
+
+let cargasData  = [];
+let camionesMap = {};
+let filtroActivo = null;
+
+// Al cargar la página, revisar si viene filtrado por camión desde URL
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const idCamion = params.get('camion');
+  const placaCamion = params.get('placa');
+
+  if (idCamion) {
+    filtroActivo = idCamion;
+    document.getElementById('subtitulo-pagina').textContent =
+      `Historial de cargas · Camión ${decodeURIComponent(placaCamion || '')}`;
+    document.getElementById('btn-limpiar-filtro').style.display = 'flex';
+  }
+
+  // Fecha por defecto: hoy
+  document.getElementById('f-fecha').value = new Date().toISOString().slice(0, 10);
+
+  cargarCamiones();
+  cargarCargas();
+});
+
+// Cargar lista de camiones para los selects y mapa id→placa
+async function cargarCamiones() {
+  try {
+    const res  = await fetch(`${API}/camiones/listar.php`);
+    const data = await res.json();
+
+    data.forEach(c => { camionesMap[c.id_camion] = c; });
+
+    const optsCamion = data.map(c =>
+      `<option value="${c.id_camion}">${c.numero_placa} — ${c.marca} ${c.modelo}</option>`
+    ).join('');
+
+    document.getElementById('f-camion').innerHTML =
+      '<option value="">Selecciona un camión...</option>' + optsCamion;
+    document.getElementById('filter-camion').innerHTML =
+      '<option value="">Todos los camiones</option>' + optsCamion;
+
+    // Si llegó filtrado por URL, preseleccionar en el select de filtro
+    if (filtroActivo) {
+      document.getElementById('filter-camion').value = filtroActivo;
+    }
+  } catch(e) {
+    console.error('Error cargando camiones', e);
+  }
+}
+
+// Cargar historial de cargas
+async function cargarCargas() {
+  try {
+    const res  = await fetch(`${API}/combustible/listar.php`);
+    const data = await res.json();
+    cargasData = data;
+    poblarFiltroMeses(data);
+    filtrar();
+  } catch(e) {
+    document.getElementById('tbody').innerHTML = `
+      <tr><td colspan="9" style="padding:20px;color:var(--rojo);font-size:13px">
+        ✗ No se pudo conectar. Verifica que XAMPP esté corriendo.
+      </td></tr>`;
+  }
+}
+
+// Poblar select de meses según datos
+function poblarFiltroMeses(data) {
+  const mesesSet = new Set();
+  data.forEach(c => {
+    if (c.fecha) mesesSet.add(c.fecha.slice(0, 7));
+  });
+  const meses = [...mesesSet].sort().reverse();
+  document.getElementById('filter-mes').innerHTML =
+    '<option value="">Todos los meses</option>' +
+    meses.map(m => `<option value="${m}">${formatMes(m)}</option>`).join('');
+}
+
+// Renderizar tabla
+function renderTabla(data) {
+  const tbody = document.getElementById('tbody');
+  document.getElementById('total-label').textContent = data.length + ' registros';
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="9">
+      <div class="empty">
+        <div class="empty-icon">⛽</div>
+        <div class="empty-title">Sin registros</div>
+        <div class="empty-text">No hay cargas que coincidan con el filtro</div>
+      </div>
+    </td></tr>`;
+    actualizarSubtotales([]);
+    return;
+  }
+
+  tbody.innerHTML = data.map((c, i) => {
+    const camion = camionesMap[c.id_camion] || {};
+    const total  = parseFloat(c.total_pago) || 0;
+    const litros = parseFloat(c.litros) || 0;
+    const precio = parseFloat(c.precio_litro) || 0;
+    return `
+    <tr style="animation-delay:${i * 0.03}s">
+      <td style="white-space:nowrap;font-size:12px;color:var(--text2)">${formatFecha(c.fecha)}</td>
+      <td><span class="placa-chip">${camion.numero_placa || '—'}</span></td>
+      <td><span class="num-litros">${litros.toLocaleString('es-GT', {minimumFractionDigits:2})} L</span></td>
+      <td><span class="num-money" style="font-size:12px;color:var(--text3)">Q${precio.toFixed(2)}</span></td>
+      <td><span class="num-money" style="color:var(--verde-oscuro);font-weight:600">Q${total.toLocaleString('es-GT', {minimumFractionDigits:2})}</span></td>
+      <td style="color:var(--text2);font-size:13px">${c.proveedor || '<span style="color:var(--text3)">—</span>'}</td>
+      <td style="text-align:center">
+        ${c.ruta_imagen
+          ? `<button class="btn btn-secondary btn-xs" onclick="verRecibo(${c.id_carga}, '${c.ruta_imagen}')">🖼 Ver</button>`
+          : `<span style="font-size:11px;color:var(--text3)">—</span>`}
+      </td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--text2)" title="${c.notas||''}">
+        ${c.notas || '<span style="color:var(--text3)">—</span>'}
+      </td>
+      <td>
+        <button class="btn btn-secondary btn-xs" onclick="verDetalle(${c.id_carga})">Ver</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  actualizarSubtotales(data);
+}
+
+// Calcular y mostrar subtotales
+function actualizarSubtotales(data) {
+  const litros = data.reduce((s, c) => s + (parseFloat(c.litros) || 0), 0);
+  const gasto  = data.reduce((s, c) => s + (parseFloat(c.total_pago) || 0), 0);
+
+  document.getElementById('sub-litros').textContent = litros.toLocaleString('es-GT', {minimumFractionDigits:2});
+  document.getElementById('sub-gasto').textContent  = gasto.toLocaleString('es-GT', {minimumFractionDigits:2});
+
+  const fila = document.getElementById('fila-totales');
+  fila.style.display = data.length ? 'flex' : 'none';
+}
+
+// Estadísticas globales o filtradas
+function renderStats(data) {
+  const litros = data.reduce((s, c) => s + (parseFloat(c.litros) || 0), 0);
+  const gasto  = data.reduce((s, c) => s + (parseFloat(c.total_pago) || 0), 0);
+  const ultima = data.length ? data.reduce((a,b) => a.fecha > b.fecha ? a : b) : null;
+
+  document.getElementById('stat-cargas').textContent = data.length;
+  document.getElementById('stat-litros').textContent = litros.toLocaleString('es-GT', {minimumFractionDigits:0, maximumFractionDigits:0});
+  document.getElementById('stat-gasto').textContent  = 'Q' + gasto.toLocaleString('es-GT', {minimumFractionDigits:2});
+  document.getElementById('stat-ultima').textContent = ultima ? formatFechaCorta(ultima.fecha) : '—';
+}
+
+// Filtrar
+function filtrar() {
+  const q      = document.getElementById('search-input').value.toLowerCase();
+  const camion = document.getElementById('filter-camion').value;
+  const mes    = document.getElementById('filter-mes').value;
+
+  const result = cargasData.filter(c => {
+    const cam = camionesMap[c.id_camion] || {};
+    const txt = `${cam.numero_placa || ''} ${c.proveedor || ''}`.toLowerCase();
+    return txt.includes(q)
+      && (!camion || String(c.id_camion) === camion)
+      && (!mes || (c.fecha || '').startsWith(mes));
+  });
+
+  renderTabla(result);
+  renderStats(result);
+}
+
+// Limpiar filtro por camión desde URL
+function limpiarFiltroCamion() {
+  filtroActivo = null;
+  history.replaceState({}, '', 'combustible.html');
+  document.getElementById('subtitulo-pagina').textContent = 'Historial de cargas de toda la flota';
+  document.getElementById('btn-limpiar-filtro').style.display = 'none';
+  document.getElementById('filter-camion').value = '';
+  filtrar();
+}
+
+// Calcular total automáticamente
+function calcularTotal() {
+  const l = parseFloat(document.getElementById('f-litros').value) || 0;
+  const p = parseFloat(document.getElementById('f-precio').value) || 0;
+  document.getElementById('f-total').value = (l * p).toFixed(2);
+}
+
+// Preview del recibo
+function previewRecibo(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const area     = document.getElementById('upload-area');
+  const preview  = document.getElementById('upload-preview');
+  const filename = document.getElementById('upload-filename');
+
+  area.classList.add('has-file');
+  filename.textContent = '📎 ' + file.name;
+  filename.style.display = 'block';
+
+  if (file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = e => { preview.src = e.target.result; preview.classList.add('show'); };
+    reader.readAsDataURL(file);
+  } else {
+    preview.classList.remove('show');
+  }
+}
+
+// Registrar carga
+async function registrarCarga(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-guardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  ocultarAlerta('form-err');
+
+  const formData = new FormData();
+  formData.append('id_camion',   document.getElementById('f-camion').value);
+  formData.append('fecha',       document.getElementById('f-fecha').value);
+  formData.append('litros',      document.getElementById('f-litros').value);
+  formData.append('precio_litro',document.getElementById('f-precio').value);
+  formData.append('total_pago',  document.getElementById('f-total').value);
+  formData.append('proveedor',   document.getElementById('f-proveedor').value);
+  formData.append('notas',       document.getElementById('f-notas').value);
+
+  const recibo = document.getElementById('f-recibo').files[0];
+  if (recibo) formData.append('recibo', recibo);
+
+  try {
+    const res  = await fetch(`${API}/combustible/registrar.php`, { method:'POST', body:formData });
+    const data = await res.json();
+
+    if (data.ok) {
+      cerrarModal('modal-registro');
+      resetFormCarga();
+      mostrarAlerta('alert-ok', 'Carga registrada correctamente.');
+      cargarCargas();
+    } else {
+      mostrarAlertaModal('form-err', data.mensaje || 'Error al registrar la carga');
+    }
+  } catch(err) {
+    mostrarAlertaModal('form-err', 'Error de conexión con el servidor');
+  }
+
+  btn.disabled = false; btn.textContent = '💾 Guardar carga';
+}
+
+// Reset del formulario
+function resetFormCarga() {
+  document.getElementById('form-carga').reset();
+  document.getElementById('f-fecha').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('f-total').value = '';
+  document.getElementById('upload-area').classList.remove('has-file');
+  document.getElementById('upload-preview').classList.remove('show');
+  document.getElementById('upload-filename').style.display = 'none';
+  ocultarAlerta('form-err');
+}
+
+// Ver recibo
+function verRecibo(id, ruta) {
+  const isPdf = ruta.toLowerCase().endsWith('.pdf');
+  document.getElementById('recibo-titulo').textContent = 'Recibo de carga #' + id;
+  document.getElementById('recibo-img').style.display = isPdf ? 'none' : 'block';
+  document.getElementById('recibo-pdf-msg').style.display = isPdf ? 'block' : 'none';
+
+  if (isPdf) {
+    document.getElementById('recibo-pdf-link').href = `${API}/../uploads/${ruta}`;
+  } else {
+    document.getElementById('recibo-img').src = `${API}/../uploads/${ruta}`;
+  }
+  abrirModal('modal-recibo');
+}
+
+// Ver detalle
+async function verDetalle(id) {
+  abrirModal('modal-detalle');
+  const body = document.getElementById('detalle-body');
+  body.innerHTML = `<div class="loader"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div> Cargando...</div>`;
+
+  try {
+    const res = await fetch(`${API}/combustible/detalle.php?id=${id}`);
+    const c   = await res.json();
+    const cam = camionesMap[c.id_camion] || {};
+    const total  = parseFloat(c.total_pago) || 0;
+    const litros = parseFloat(c.litros) || 0;
+    const precio = parseFloat(c.precio_litro) || 0;
+
+    document.getElementById('detalle-titulo').textContent = `Carga #${c.id_carga}`;
+
+    body.innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="detail-item-label">Camión</div>
+          <div class="detail-item-value"><span class="placa-chip">${cam.numero_placa || '—'}</span></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Fecha</div>
+          <div class="detail-item-value">${formatFecha(c.fecha)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Litros</div>
+          <div class="detail-item-value" style="color:var(--verde-oscuro)">${litros.toLocaleString('es-GT', {minimumFractionDigits:2})} L</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Precio por litro</div>
+          <div class="detail-item-value">Q${precio.toFixed(2)}</div>
+        </div>
+        <div class="detail-item detail-full" style="background:var(--verde-dim);border-color:rgba(114,166,3,0.3)">
+          <div class="detail-item-label">Total pagado</div>
+          <div class="detail-item-value" style="font-size:22px;color:var(--verde-oscuro)">Q${total.toLocaleString('es-GT', {minimumFractionDigits:2})}</div>
+        </div>
+        ${c.proveedor ? `
+        <div class="detail-item detail-full">
+          <div class="detail-item-label">Proveedor / Gasolinera</div>
+          <div class="detail-item-value">${c.proveedor}</div>
+        </div>` : ''}
+        ${c.notas ? `
+        <div class="detail-item detail-full">
+          <div class="detail-item-label">Notas</div>
+          <div class="detail-item-value" style="font-weight:400;font-size:13px;line-height:1.5">${c.notas}</div>
+        </div>` : ''}
+        <div class="detail-item detail-full">
+          <div class="detail-item-label">Registrado el</div>
+          <div class="detail-item-value" style="font-size:13px;font-weight:400">${formatFechaHora(c.created_at)}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;border-top:1.5px solid var(--border);padding-top:18px;flex-wrap:wrap">
+        ${c.ruta_imagen ? `<button class="btn btn-fuel" onclick="cerrarModal('modal-detalle');verRecibo(${c.id_carga},'${c.ruta_imagen}')">🖼 Ver recibo</button>` : ''}
+        <button class="btn btn-primary" onclick="cerrarModal('modal-detalle')">Cerrar</button>
+      </div>`;
+  } catch(err) {
+    body.innerHTML = `<p style="color:var(--rojo);font-size:13px;padding:4px 0">✗ Error al cargar el detalle</p>`;
+  }
+}
+
+// Modales
+function abrirModalRegistro() {
+  if (filtroActivo) document.getElementById('f-camion').value = filtroActivo;
+  abrirModal('modal-registro');
+}
+function abrirModal(id)  { document.getElementById(id).classList.add('open'); }
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// Alertas
+function mostrarAlerta(id, msg) {
+  const el = document.getElementById(id);
+  el.querySelector('span').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4500);
+}
+function mostrarAlertaModal(id, msg) {
+  const el = document.getElementById(id);
+  el.querySelector('span').textContent = msg;
+  el.classList.add('show');
+}
+function ocultarAlerta(id) { document.getElementById(id).classList.remove('show'); }
+
+// Formato de fechas
+function formatFecha(str) {
+  if (!str) return '—';
+  const [y,m,d] = str.split('T')[0].split('-');
+  return `${d}/${m}/${y}`;
+}
+function formatFechaCorta(str) {
+  if (!str) return '—';
+  const [y,m,d] = str.split('T')[0].split('-');
+  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return `${parseInt(d)} ${meses[parseInt(m)-1]}`;
+}
+function formatFechaHora(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('es-GT', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+function formatMes(str) {
+  const [y,m] = str.split('-');
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  return `${meses[parseInt(m)-1]} ${y}`;
+}
+</script>
+</body>
+</html>
