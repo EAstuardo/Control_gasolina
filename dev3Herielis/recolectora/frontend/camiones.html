@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camiones — Recolectora</title>
+<link rel="stylesheet" href="recolectora.css">
+</head>
+<body>
+
+<!-- Navegación -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🚛</div>
+    Recolectora
+  </div>
+  <div class="nav-spacer"></div>
+  <a href="camiones.html"    class="nav-link active">🚛 Camiones</a>
+  <a href="combustible.html" class="nav-link">⛽ Combustible</a>
+</nav>
+
+<!-- Contenido principal -->
+<main class="main">
+
+  <!-- Encabezado -->
+  <div class="page-header">
+    <div>
+      <h1>🚛 Flota de camiones</h1>
+      <p>Administración de vehículos recolectores</p>
+    </div>
+    <button class="btn btn-primary" onclick="abrirModalRegistro()">
+      + Nuevo camión
+    </button>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-icon">🚛</div>
+      <div class="stat-label">Total flota</div>
+      <div class="stat-value sv-text" id="stat-total">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-label">Activos</div>
+      <div class="stat-value sv-verde" id="stat-activos">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🔧</div>
+      <div class="stat-label">Mantenimiento</div>
+      <div class="stat-value sv-amarillo" id="stat-maint">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🔴</div>
+      <div class="stat-label">Inactivos</div>
+      <div class="stat-value sv-rojo" id="stat-inactivos">—</div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Lista de camiones</span>
+      <span id="total-label" style="font-size:12px;color:var(--text3)"></span>
+    </div>
+    <div class="card-body">
+
+      <div class="toolbar">
+        <input class="search-input" id="search-input" type="text"
+          placeholder="Buscar por placa, marca o modelo..." oninput="filtrar()">
+        <select class="filter-select" id="filter-estado" onchange="filtrar()">
+          <option value="">Todos los estados</option>
+          <option value="ACTIVO">Activo</option>
+          <option value="MANTENIMIENTO">Mantenimiento</option>
+          <option value="INACTIVO">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="alert alert-ok"  id="alert-ok" >✓ <span id="alert-ok-msg"></span></div>
+      <div class="alert alert-err" id="alert-err">✗ <span id="alert-err-msg"></span></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Placa</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Año</th>
+              <th>Capacidad</th>
+              <th>Colonia</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="8">
+              <div class="loader">
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                Cargando camiones...
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- Modal: registrar camión -->
+<div class="modal-overlay" id="modal-registro">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">+ Registrar nuevo camión</span>
+      <button class="modal-close" onclick="cerrarModal('modal-registro')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="alert alert-err" id="form-err">✗ <span id="form-err-msg"></span></div>
+
+      <form id="form-camion" onsubmit="registrarCamion(event)">
+
+        <div class="form-group">
+          <label class="form-label">Número de placa <span class="req">*</span></label>
+          <input class="form-input" id="f-placa" type="text" placeholder="Ej: P-1234-GT" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Marca <span class="req">*</span></label>
+            <input class="form-input" id="f-marca" type="text" placeholder="Mercedes, Volvo..." required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Modelo <span class="req">*</span></label>
+            <input class="form-input" id="f-modelo" type="text" placeholder="Actros, FH..." required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Año <span class="req">*</span></label>
+            <input class="form-input" id="f-anio" type="number" min="1990" max="2030" placeholder="2023" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Capacidad (kg)</label>
+            <input class="form-input" id="f-capacidad" type="number" min="0" step="0.01" placeholder="8000">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select class="form-select" id="f-estado-form">
+              <option value="ACTIVO">Activo</option>
+              <option value="MANTENIMIENTO">Mantenimiento</option>
+              <option value="INACTIVO">Inactivo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Colonia asignada <span class="req">*</span></label>
+            <select class="form-select" id="f-colonia" required>
+              <option value="">Selecciona una colonia...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-registro')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-guardar">💾 Guardar camión</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: detalle -->
+<div class="modal-overlay" id="modal-detalle">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="detalle-titulo">Detalle del camión</span>
+      <button class="modal-close" onclick="cerrarModal('modal-detalle')">✕</button>
+    </div>
+    <div class="modal-body" id="detalle-body">
+      <div class="loader">
+        <div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>
+        Cargando...
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost/recolectora/api';
+let camionesData = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  cargarCamiones();
+  cargarColonias();
+});
+
+async function cargarCamiones() {
+  try {
+    const res  = await fetch(`${API}/camiones/listar.php`);
+    const data = await res.json();
+    camionesData = data;
+    renderTabla(data);
+    renderStats(data);
+  } catch(e) {
+    document.getElementById('tbody').innerHTML = `
+      <tr><td colspan="8" style="padding:20px;color:var(--rojo);font-size:13px">
+        ✗ No se pudo conectar. Verifica que XAMPP esté corriendo.
+      </td></tr>`;
+  }
+}
+
+function renderTabla(data) {
+  const tbody = document.getElementById('tbody');
+  document.getElementById('total-label').textContent = data.length + ' camiones';
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="8">
+      <div class="empty">
+        <div class="empty-icon">🚛</div>
+        <div class="empty-title">Sin camiones registrados</div>
+        <div class="empty-text">Agrega el primer camión de la flota</div>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map((c, i) => `
+    <tr style="animation-delay:${i * 0.04}s">
+      <td><span class="placa-chip">${c.numero_placa}</span></td>
+      <td style="font-weight:600">${c.marca}</td>
+      <td style="color:var(--text2)">${c.modelo}</td>
+      <td>${c.anio}</td>
+      <td><span class="num-litros">${c.capacidad_kg ? Number(c.capacidad_kg).toLocaleString('es-GT') + ' kg' : '—'}</span></td>
+      <td style="color:var(--text2);font-size:13px">${c.colonia_nombre || '—'}</td>
+      <td>${badgeEstado(c.estado)}</td>
+      <td>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn btn-secondary btn-sm" onclick="verDetalle(${c.id_camion})">Ver</button>
+          <a href="combustible.html?camion=${c.id_camion}&placa=${encodeURIComponent(c.numero_placa)}"
+             class="btn btn-fuel btn-sm" title="Ver combustible">⛽</a>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderStats(data) {
+  document.getElementById('stat-total').textContent     = data.length;
+  document.getElementById('stat-activos').textContent   = data.filter(c => c.estado === 'ACTIVO').length;
+  document.getElementById('stat-maint').textContent     = data.filter(c => c.estado === 'MANTENIMIENTO').length;
+  document.getElementById('stat-inactivos').textContent = data.filter(c => c.estado === 'INACTIVO').length;
+}
+
+function badgeEstado(estado) {
+  const cls = { ACTIVO:'badge-activo', INACTIVO:'badge-inactivo', MANTENIMIENTO:'badge-mant' };
+  const lbl = { ACTIVO:'Activo', INACTIVO:'Inactivo', MANTENIMIENTO:'Mantenimiento' };
+  return `<span class="badge ${cls[estado]||'badge-inactivo'}">${lbl[estado]||estado}</span>`;
+}
+
+function filtrar() {
+  const q      = document.getElementById('search-input').value.toLowerCase();
+  const estado = document.getElementById('filter-estado').value;
+  const result = camionesData.filter(c => {
+    const txt = `${c.numero_placa} ${c.marca} ${c.modelo}`.toLowerCase();
+    return txt.includes(q) && (!estado || c.estado === estado);
+  });
+  renderTabla(result);
+}
+
+async function cargarColonias() {
+  try {
+    const res  = await fetch(`${API}/colonias/listar.php`);
+    const data = await res.json();
+    document.getElementById('f-colonia').innerHTML =
+      '<option value="">Selecciona una colonia...</option>' +
+      data.map(col => `<option value="${col.id_colonia}">${col.nombre}</option>`).join('');
+  } catch(e) {
+    document.getElementById('f-colonia').innerHTML = '<option value="">Error al cargar colonias</option>';
+  }
+}
+
+async function registrarCamion(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-guardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  ocultarAlerta('form-err');
+
+  const body = {
+    numero_placa: document.getElementById('f-placa').value.trim().toUpperCase(),
+    marca:        document.getElementById('f-marca').value.trim(),
+    modelo:       document.getElementById('f-modelo').value.trim(),
+    anio:         parseInt(document.getElementById('f-anio').value),
+    capacidad_kg: parseFloat(document.getElementById('f-capacidad').value) || null,
+    estado:       document.getElementById('f-estado-form').value,
+    id_colonia:   parseInt(document.getElementById('f-colonia').value),
+  };
+
+  try {
+    const res  = await fetch(`${API}/camiones/registrar.php`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      cerrarModal('modal-registro');
+      document.getElementById('form-camion').reset();
+      mostrarAlerta('alert-ok', `Camión ${body.numero_placa} registrado correctamente.`);
+      cargarCamiones();
+    } else {
+      mostrarAlertaModal('form-err', data.mensaje || 'Error al registrar el camión');
+    }
+  } catch(err) {
+    mostrarAlertaModal('form-err', 'Error de conexión con el servidor');
+  }
+
+  btn.disabled = false; btn.textContent = '💾 Guardar camión';
+}
+
+async function verDetalle(id) {
+  abrirModal('modal-detalle');
+  document.getElementById('detalle-titulo').textContent = 'Cargando...';
+  document.getElementById('detalle-body').innerHTML =
+    `<div class="loader"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div> Cargando...</div>`;
+
+  try {
+    const res = await fetch(`${API}/camiones/detalle.php?id=${id}`);
+    const c   = await res.json();
+
+    document.getElementById('detalle-titulo').textContent = `${c.numero_placa} — ${c.marca} ${c.modelo}`;
+    document.getElementById('detalle-body').innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="detail-item-label">Placa</div>
+          <div class="detail-item-value"><span class="placa-chip">${c.numero_placa}</span></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Estado actual</div>
+          <div class="detail-item-value">${badgeEstado(c.estado)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Marca</div>
+          <div class="detail-item-value">${c.marca}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Modelo</div>
+          <div class="detail-item-value">${c.modelo}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Año</div>
+          <div class="detail-item-value">${c.anio}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Capacidad</div>
+          <div class="detail-item-value">${c.capacidad_kg ? Number(c.capacidad_kg).toLocaleString('es-GT') + ' kg' : 'No especificada'}</div>
+        </div>
+        <div class="detail-item detail-full">
+          <div class="detail-item-label">Colonia asignada</div>
+          <div class="detail-item-value">${c.colonia_nombre || 'Sin colonia asignada'}</div>
+        </div>
+        <div class="detail-item detail-full">
+          <div class="detail-item-label">Fecha de registro</div>
+          <div class="detail-item-value" style="font-weight:400;font-size:13px">${formatFecha(c.created_at)}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;border-top:1.5px solid var(--border);padding-top:18px">
+        <a href="combustible.html?camion=${c.id_camion}&placa=${encodeURIComponent(c.numero_placa)}"
+           class="btn btn-fuel">⛽ Ver combustible</a>
+        <button class="btn btn-primary" onclick="cerrarModal('modal-detalle')">Cerrar</button>
+      </div>`;
+  } catch(err) {
+    document.getElementById('detalle-body').innerHTML =
+      `<p style="color:var(--rojo);font-size:13px;padding:4px 0">✗ Error al cargar el detalle del camión</p>`;
+  }
+}
+
+function abrirModalRegistro() { abrirModal('modal-registro'); }
+function abrirModal(id)  { document.getElementById(id).classList.add('open'); }
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+function mostrarAlerta(id, msg) {
+  const el = document.getElementById(id);
+  el.querySelector('span').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4500);
+}
+function mostrarAlertaModal(id, msg) {
+  const el = document.getElementById(id);
+  el.querySelector('span').textContent = msg;
+  el.classList.add('show');
+}
+function ocultarAlerta(id) { document.getElementById(id).classList.remove('show'); }
+
+function formatFecha(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('es-GT', { day:'2-digit', month:'long', year:'numeric' });
+}
+</script>
+</body>
+</html>
