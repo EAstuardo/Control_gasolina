@@ -1,7 +1,7 @@
 <?php
 // Configuración de conexión a MySQL
 $host     = 'localhost';
-$dbname   = 'recolectora_db';
+$dbname   = 'recolectora';   // ← base de datos actualizada
 $user     = 'root';
 $password = '';          // En XAMPP por defecto está vacío
 $charset  = 'utf8mb4';

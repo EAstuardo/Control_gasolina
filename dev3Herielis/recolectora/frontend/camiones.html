@@ -3,71 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Camiones — Recolectora</title>
+<title>Recolectora – Camiones</title>
 <link rel="stylesheet" href="recolectora.css">
+<style>
+.nav-logo-svg { width:36px; height:36px; flex-shrink:0; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
+#panel-nueva-colonia {
+  display:none; background:linear-gradient(135deg,#f4fae6,#eef7d8);
+  border:1.5px solid rgba(114,166,3,0.35); border-radius:10px;
+  padding:16px 16px 14px; margin-top:10px; animation:fadeUp .2s ease both; position:relative;
+}
+#panel-nueva-colonia::before {
+  content:'✦ Nueva colonia'; position:absolute; top:-10px; left:14px;
+  background:var(--verde-lima); color:#fff; font-size:10px; font-weight:700;
+  letter-spacing:.06em; padding:2px 9px; border-radius:20px;
+}
+.panel-row-3 { display:grid; grid-template-columns:2fr 1fr; gap:12px; }
+.panel-label { display:block; font-size:11px; font-weight:700; color:var(--text2); margin-bottom:5px; }
+.panel-req { color:var(--rojo); }
+.panel-actions { display:flex; gap:8px; margin-top:12px; justify-content:flex-end; }
+</style>
 </head>
 <body>
 
-<!-- Navegación -->
 <nav class="nav">
   <div class="nav-logo">
-    <div class="nav-logo-icon">🚛</div>
-    Recolectora
+    <svg class="nav-logo-svg" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/g">
+      <rect width="36" height="36" rx="10" fill="#F2B705"/>
+      <rect x="4" y="14" width="16" height="9" rx="2" fill="#fff"/>
+      <rect x="20" y="16" width="9" height="7" rx="2" fill="#fff"/>
+      <rect x="21.5" y="17.5" width="4" height="3" rx="1" fill="#F2B705"/>
+      <circle cx="9" cy="25" r="2.3" fill="#72A603"/><circle cx="9" cy="25" r="1" fill="#fff"/>
+      <circle cx="24" cy="25" r="2.3" fill="#72A603"/><circle cx="24" cy="25" r="1" fill="#fff"/>
+      <path d="M27 6 C29 4,33 5,33 8 C33 10.5,30.5 11.5,29 10" stroke="#fff" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <path d="M29 10 L27.5 8.5 L31 8.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <line x1="20" y1="14" x2="20" y2="23" stroke="rgba(114,166,3,0.4)" stroke-width="1"/>
+    </svg>
+    <span style="font-size:16px;letter-spacing:-.02em;">Recolectora</span>
   </div>
   <div class="nav-spacer"></div>
-  <a href="camiones.html"    class="nav-link active">🚛 Camiones</a>
-  <a href="combustible.html" class="nav-link">⛽ Combustible</a>
+  <a href="camiones.html"    class="nav-link active"> Camiones</a>
+  <a href="combustible.html" class="nav-link"> Combustible</a>
 </nav>
 
-<!-- Contenido principal -->
 <main class="main">
-
-  <!-- Encabezado -->
   <div class="page-header">
     <div>
-      <h1>🚛 Flota de camiones</h1>
+      <h1>Camiones</h1>
       <p>Administración de vehículos recolectores</p>
     </div>
-    <button class="btn btn-primary" onclick="abrirModalRegistro()">
-      + Nuevo camión
-    </button>
+    <button class="btn btn-primary" onclick="abrirModalRegistro()">+ Nuevo camión</button>
   </div>
 
-  <!-- Estadísticas -->
   <div class="stats">
-    <div class="stat-card">
-      <div class="stat-icon">🚛</div>
-      <div class="stat-label">Total flota</div>
-      <div class="stat-value sv-text" id="stat-total">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">✅</div>
-      <div class="stat-label">Activos</div>
-      <div class="stat-value sv-verde" id="stat-activos">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">🔧</div>
-      <div class="stat-label">Mantenimiento</div>
-      <div class="stat-value sv-amarillo" id="stat-maint">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">🔴</div>
-      <div class="stat-label">Inactivos</div>
-      <div class="stat-value sv-rojo" id="stat-inactivos">—</div>
-    </div>
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value sv-text" id="stat-total">—</div></div>
+    <div class="stat-card"><div class="stat-label">Activos</div><div class="stat-value sv-verde" id="stat-activos">—</div></div>
+    <div class="stat-card"><div class="stat-label">Mantenimiento</div><div class="stat-value sv-amarillo" id="stat-maint">—</div></div>
+    <div class="stat-card"><div class="stat-label">Inactivos</div><div class="stat-value sv-rojo" id="stat-inactivos">—</div></div>
   </div>
 
-  <!-- Tabla -->
   <div class="card">
     <div class="card-header">
-      <span class="card-title">📋 Lista de camiones</span>
+      <span class="card-title"> Lista de camiones</span>
       <span id="total-label" style="font-size:12px;color:var(--text3)"></span>
     </div>
     <div class="card-body">
-
       <div class="toolbar">
-        <input class="search-input" id="search-input" type="text"
-          placeholder="Buscar por placa, marca o modelo..." oninput="filtrar()">
+        <input class="search-input" id="search-input" type="text" placeholder="Buscar por placa, marca o modelo..." oninput="filtrar()">
         <select class="filter-select" id="filter-estado" onchange="filtrar()">
           <option value="">Todos los estados</option>
           <option value="ACTIVO">Activo</option>
@@ -75,60 +76,34 @@
           <option value="INACTIVO">Inactivo</option>
         </select>
       </div>
-
       <div class="alert alert-ok"  id="alert-ok" >✓ <span id="alert-ok-msg"></span></div>
       <div class="alert alert-err" id="alert-err">✗ <span id="alert-err-msg"></span></div>
-
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Placa</th>
-              <th>Marca</th>
-              <th>Modelo</th>
-              <th>Año</th>
-              <th>Capacidad</th>
-              <th>Colonia</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Placa</th><th>Marca</th><th>Modelo</th><th>Año</th><th>Capacidad</th><th>Colonia</th><th>Estado</th><th>Acciones</th></tr></thead>
           <tbody id="tbody">
-            <tr><td colspan="8">
-              <div class="loader">
-                <div class="loader-dot"></div>
-                <div class="loader-dot"></div>
-                <div class="loader-dot"></div>
-                Cargando camiones...
-              </div>
-            </td></tr>
+            <tr><td colspan="8"><div class="loader"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>Cargando camiones...</div></td></tr>
           </tbody>
         </table>
       </div>
-
     </div>
   </div>
-
 </main>
 
-<!-- Modal: registrar camión -->
+<!-- Modal registrar camión -->
 <div class="modal-overlay" id="modal-registro">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">+ Registrar nuevo camión</span>
+      <span class="modal-title"> Registrar nuevo camión</span>
       <button class="modal-close" onclick="cerrarModal('modal-registro')">✕</button>
     </div>
     <div class="modal-body">
-
       <div class="alert alert-err" id="form-err">✗ <span id="form-err-msg"></span></div>
-
       <form id="form-camion" onsubmit="registrarCamion(event)">
-
         <div class="form-group">
           <label class="form-label">Número de placa <span class="req">*</span></label>
           <input class="form-input" id="f-placa" type="text" placeholder="Ej: P-1234-GT" required>
         </div>
-
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Marca <span class="req">*</span></label>
@@ -139,7 +114,6 @@
             <input class="form-input" id="f-modelo" type="text" placeholder="Actros, FH..." required>
           </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Año <span class="req">*</span></label>
@@ -150,7 +124,6 @@
             <input class="form-input" id="f-capacidad" type="number" min="0" step="0.01" placeholder="8000">
           </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Estado</label>
@@ -162,23 +135,43 @@
           </div>
           <div class="form-group">
             <label class="form-label">Colonia asignada <span class="req">*</span></label>
-            <select class="form-select" id="f-colonia" required>
-              <option value="">Selecciona una colonia...</option>
+            <select class="form-select" id="f-colonia" required onchange="onColoniaChange(this)">
+              <option value=""> Cargando colonias...</option>
             </select>
+            <!-- Panel nueva colonia inline -->
+            <div id="panel-nueva-colonia">
+              <div class="panel-row-3" style="margin-bottom:10px;">
+                <div>
+                  <label class="panel-label">Nombre <span class="panel-req">*</span></label>
+                  <input class="form-input" id="nc-nombre" type="text" placeholder="Ej: Col. El Esfuerzo">
+                </div>
+                <div>
+                  <label class="panel-label">Tarifa Q/mes <span class="panel-req">*</span></label>
+                  <input class="form-input" id="nc-tarifa" type="number" min="0" step="0.01" placeholder="50.00">
+                </div>
+              </div>
+              <div style="margin-bottom:4px;">
+                <label class="panel-label">Descripción <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+                <input class="form-input" id="nc-descripcion" type="text" placeholder="Zona, municipio...">
+              </div>
+              <div class="panel-actions">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="cancelarNuevaColonia()">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-guardar-colonia" onclick="guardarNuevaColonia()">💾 Guardar colonia</button>
+              </div>
+              <div class="alert alert-err" id="nc-err" style="margin-top:10px;margin-bottom:0;">✗ <span id="nc-err-msg"></span></div>
+            </div>
           </div>
         </div>
-
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-registro')">Cancelar</button>
-          <button type="submit" class="btn btn-primary" id="btn-guardar">💾 Guardar camión</button>
+          <button type="submit" class="btn btn-primary" id="btn-guardar"> Guardar camión</button>
         </div>
-
       </form>
     </div>
   </div>
 </div>
 
-<!-- Modal: detalle -->
+<!-- Modal detalle -->
 <div class="modal-overlay" id="modal-detalle">
   <div class="modal">
     <div class="modal-header">
@@ -186,10 +179,7 @@
       <button class="modal-close" onclick="cerrarModal('modal-detalle')">✕</button>
     </div>
     <div class="modal-body" id="detalle-body">
-      <div class="loader">
-        <div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>
-        Cargando...
-      </div>
+      <div class="loader"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>Cargando...</div>
     </div>
   </div>
 </div>
@@ -197,216 +187,181 @@
 <script>
 const API = 'http://localhost/recolectora/api';
 let camionesData = [];
+let coloniasCache = [];
 
-document.addEventListener('DOMContentLoaded', () => {
-  cargarCamiones();
-  cargarColonias();
-});
+document.addEventListener('DOMContentLoaded', () => { cargarCamiones(); cargarColonias(); });
 
 async function cargarCamiones() {
   try {
-    const res  = await fetch(`${API}/camiones/listar.php`);
+    const res = await fetch(`${API}/camiones/listar.php`);
     const data = await res.json();
-    camionesData = data;
-    renderTabla(data);
-    renderStats(data);
+    camionesData = data; renderTabla(data); renderStats(data);
   } catch(e) {
-    document.getElementById('tbody').innerHTML = `
-      <tr><td colspan="8" style="padding:20px;color:var(--rojo);font-size:13px">
-        ✗ No se pudo conectar. Verifica que XAMPP esté corriendo.
-      </td></tr>`;
+    document.getElementById('tbody').innerHTML = `<tr><td colspan="8" style="padding:20px;color:var(--rojo);font-size:13px">✗ No se pudo conectar. Verifica que XAMPP esté corriendo.</td></tr>`;
   }
 }
 
 function renderTabla(data) {
   const tbody = document.getElementById('tbody');
   document.getElementById('total-label').textContent = data.length + ' camiones';
-
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="8">
-      <div class="empty">
-        <div class="empty-icon">🚛</div>
-        <div class="empty-title">Sin camiones registrados</div>
-        <div class="empty-text">Agrega el primer camión de la flota</div>
-      </div>
-    </td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = data.map((c, i) => `
-    <tr style="animation-delay:${i * 0.04}s">
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-title">Sin camiones registrados</div><div class="empty-text">Agrega el primer camión de la flota</div></div></td></tr>`; return; }
+  tbody.innerHTML = data.map((c,i) => `
+    <tr style="animation-delay:${i*.04}s">
       <td><span class="placa-chip">${c.numero_placa}</span></td>
       <td style="font-weight:600">${c.marca}</td>
       <td style="color:var(--text2)">${c.modelo}</td>
       <td>${c.anio}</td>
-      <td><span class="num-litros">${c.capacidad_kg ? Number(c.capacidad_kg).toLocaleString('es-GT') + ' kg' : '—'}</span></td>
-      <td style="color:var(--text2);font-size:13px">${c.colonia_nombre || '—'}</td>
+      <td><span class="num-litros">${c.capacidad_kg ? Number(c.capacidad_kg).toLocaleString('es-GT')+' kg' : '—'}</span></td>
+      <td style="color:var(--text2);font-size:13px">${c.colonia_nombre||'—'}</td>
       <td>${badgeEstado(c.estado)}</td>
-      <td>
-        <div style="display:flex;gap:6px;align-items:center">
-          <button class="btn btn-secondary btn-sm" onclick="verDetalle(${c.id_camion})">Ver</button>
-          <a href="combustible.html?camion=${c.id_camion}&placa=${encodeURIComponent(c.numero_placa)}"
-             class="btn btn-fuel btn-sm" title="Ver combustible">⛽</a>
-        </div>
-      </td>
-    </tr>
-  `).join('');
+      <td><div style="display:flex;gap:6px">
+        <button class="btn btn-secondary btn-sm" onclick="verDetalle(${c.id_camion})">Ver</button>
+        <a href="combustible.html?camion=${c.id_camion}&placa=${encodeURIComponent(c.numero_placa)}" class="btn btn-fuel btn-sm">⛽</a>
+      </div></td>
+    </tr>`).join('');
 }
 
 function renderStats(data) {
   document.getElementById('stat-total').textContent     = data.length;
-  document.getElementById('stat-activos').textContent   = data.filter(c => c.estado === 'ACTIVO').length;
-  document.getElementById('stat-maint').textContent     = data.filter(c => c.estado === 'MANTENIMIENTO').length;
-  document.getElementById('stat-inactivos').textContent = data.filter(c => c.estado === 'INACTIVO').length;
+  document.getElementById('stat-activos').textContent   = data.filter(c=>c.estado==='ACTIVO').length;
+  document.getElementById('stat-maint').textContent     = data.filter(c=>c.estado==='MANTENIMIENTO').length;
+  document.getElementById('stat-inactivos').textContent = data.filter(c=>c.estado==='INACTIVO').length;
 }
 
-function badgeEstado(estado) {
-  const cls = { ACTIVO:'badge-activo', INACTIVO:'badge-inactivo', MANTENIMIENTO:'badge-mant' };
-  const lbl = { ACTIVO:'Activo', INACTIVO:'Inactivo', MANTENIMIENTO:'Mantenimiento' };
-  return `<span class="badge ${cls[estado]||'badge-inactivo'}">${lbl[estado]||estado}</span>`;
+function badgeEstado(e) {
+  const c={ACTIVO:'badge-activo',INACTIVO:'badge-inactivo',MANTENIMIENTO:'badge-mant'};
+  const l={ACTIVO:'Activo',INACTIVO:'Inactivo',MANTENIMIENTO:'Mantenimiento'};
+  return `<span class="badge ${c[e]||'badge-inactivo'}">${l[e]||e}</span>`;
 }
 
 function filtrar() {
-  const q      = document.getElementById('search-input').value.toLowerCase();
-  const estado = document.getElementById('filter-estado').value;
-  const result = camionesData.filter(c => {
-    const txt = `${c.numero_placa} ${c.marca} ${c.modelo}`.toLowerCase();
-    return txt.includes(q) && (!estado || c.estado === estado);
-  });
-  renderTabla(result);
+  const q=document.getElementById('search-input').value.toLowerCase();
+  const estado=document.getElementById('filter-estado').value;
+  renderTabla(camionesData.filter(c=>`${c.numero_placa} ${c.marca} ${c.modelo}`.toLowerCase().includes(q)&&(!estado||c.estado===estado)));
 }
 
 async function cargarColonias() {
   try {
-    const res  = await fetch(`${API}/colonias/listar.php`);
+    const res = await fetch(`${API}/colonias/listar.php`);
     const data = await res.json();
-    document.getElementById('f-colonia').innerHTML =
-      '<option value="">Selecciona una colonia...</option>' +
-      data.map(col => `<option value="${col.id_colonia}">${col.nombre}</option>`).join('');
+    coloniasCache = data;
+    poblarSelectColonias(data);
   } catch(e) {
-    document.getElementById('f-colonia').innerHTML = '<option value="">Error al cargar colonias</option>';
+    document.getElementById('f-colonia').innerHTML = '<option value="">⚠ Error al cargar colonias</option><option value="__nueva__">✚ Registrar nueva colonia...</option>';
   }
+}
+
+function poblarSelectColonias(colonias, selId=null) {
+  const sel = document.getElementById('f-colonia');
+  let html = '<option value="">Selecciona una colonia...</option>';
+  if (colonias.length) {
+    html += colonias.map(c=>`<option value="${c.id_colonia}" ${selId==c.id_colonia?'selected':''}>${c.nombre} — Q${Number(c.tarifa_mensual).toFixed(2)}/mes</option>`).join('');
+    html += '<option disabled>──────────────</option>';
+  }
+  html += '<option value="__nueva__">✚ Registrar nueva colonia...</option>';
+  sel.innerHTML = html;
+}
+
+function onColoniaChange(sel) {
+  const panel = document.getElementById('panel-nueva-colonia');
+  if (sel.value === '__nueva__') { panel.style.display='block'; sel.value=''; document.getElementById('nc-nombre').focus(); }
+  else { panel.style.display='none'; }
+}
+
+function cancelarNuevaColonia() {
+  document.getElementById('panel-nueva-colonia').style.display='none';
+  ['nc-nombre','nc-tarifa','nc-descripcion'].forEach(id=>document.getElementById(id).value='');
+  ocultarAlerta('nc-err');
+}
+
+async function guardarNuevaColonia() {
+  ocultarAlerta('nc-err');
+  const nombre = document.getElementById('nc-nombre').value.trim();
+  const tarifa = document.getElementById('nc-tarifa').value;
+  const desc   = document.getElementById('nc-descripcion').value.trim();
+  if (!nombre) { mostrarAlerta('nc-err','El nombre es obligatorio'); return; }
+  if (tarifa==='') { mostrarAlerta('nc-err','La tarifa mensual es obligatoria'); return; }
+  const btn = document.getElementById('btn-guardar-colonia');
+  btn.disabled=true; btn.textContent='Guardando...';
+  try {
+    const res = await fetch(`${API}/colonias/registrar.php`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,tarifa_mensual:parseFloat(tarifa),descripcion:desc||null})});
+    const data = await res.json();
+    if (data.ok) {
+      coloniasCache.push({id_colonia:data.id_colonia,nombre:data.nombre,tarifa_mensual:data.tarifa_mensual});
+      coloniasCache.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+      poblarSelectColonias(coloniasCache, data.id_colonia);
+      cancelarNuevaColonia();
+      mostrarAlerta('alert-ok',`Colonia "${data.nombre}" registrada y seleccionada.`);
+    } else { mostrarAlerta('nc-err', data.mensaje||'Error al guardar'); }
+  } catch(e) { mostrarAlerta('nc-err','Error de conexión'); }
+  btn.disabled=false; btn.textContent='Guardar colonia';
 }
 
 async function registrarCamion(e) {
   e.preventDefault();
   const btn = document.getElementById('btn-guardar');
-  btn.disabled = true; btn.textContent = 'Guardando...';
+  btn.disabled=true; btn.textContent='Guardando...';
   ocultarAlerta('form-err');
-
+  const coloniaVal = parseInt(document.getElementById('f-colonia').value);
+  if (!coloniaVal) { mostrarAlertaModal('form-err','Debes seleccionar una colonia asignada'); btn.disabled=false; btn.textContent='💾 Guardar camión'; return; }
   const body = {
     numero_placa: document.getElementById('f-placa').value.trim().toUpperCase(),
-    marca:        document.getElementById('f-marca').value.trim(),
-    modelo:       document.getElementById('f-modelo').value.trim(),
-    anio:         parseInt(document.getElementById('f-anio').value),
-    capacidad_kg: parseFloat(document.getElementById('f-capacidad').value) || null,
-    estado:       document.getElementById('f-estado-form').value,
-    id_colonia:   parseInt(document.getElementById('f-colonia').value),
+    marca: document.getElementById('f-marca').value.trim(),
+    modelo: document.getElementById('f-modelo').value.trim(),
+    anio: parseInt(document.getElementById('f-anio').value),
+    capacidad_kg: parseFloat(document.getElementById('f-capacidad').value)||null,
+    estado: document.getElementById('f-estado-form').value,
+    id_colonia: coloniaVal
   };
-
   try {
-    const res  = await fetch(`${API}/camiones/registrar.php`, {
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
-    });
+    const res = await fetch(`${API}/camiones/registrar.php`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const data = await res.json();
-
     if (data.ok) {
       cerrarModal('modal-registro');
       document.getElementById('form-camion').reset();
-      mostrarAlerta('alert-ok', `Camión ${body.numero_placa} registrado correctamente.`);
+      poblarSelectColonias(coloniasCache);
+      document.getElementById('panel-nueva-colonia').style.display='none';
+      mostrarAlerta('alert-ok',`Camión ${body.numero_placa} registrado correctamente.`);
       cargarCamiones();
-    } else {
-      mostrarAlertaModal('form-err', data.mensaje || 'Error al registrar el camión');
-    }
-  } catch(err) {
-    mostrarAlertaModal('form-err', 'Error de conexión con el servidor');
-  }
-
-  btn.disabled = false; btn.textContent = '💾 Guardar camión';
+    } else { mostrarAlertaModal('form-err', data.mensaje||'Error al registrar'); }
+  } catch(e) { mostrarAlertaModal('form-err','Error de conexión'); }
+  btn.disabled=false; btn.textContent=' Guardar camión';
 }
 
 async function verDetalle(id) {
   abrirModal('modal-detalle');
-  document.getElementById('detalle-titulo').textContent = 'Cargando...';
-  document.getElementById('detalle-body').innerHTML =
-    `<div class="loader"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div> Cargando...</div>`;
-
+  document.getElementById('detalle-titulo').textContent='Cargando...';
+  document.getElementById('detalle-body').innerHTML=`<div class="loader"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>Cargando...</div>`;
   try {
-    const res = await fetch(`${API}/camiones/detalle.php?id=${id}`);
-    const c   = await res.json();
-
-    document.getElementById('detalle-titulo').textContent = `${c.numero_placa} — ${c.marca} ${c.modelo}`;
-    document.getElementById('detalle-body').innerHTML = `
+    const res=await fetch(`${API}/camiones/detalle.php?id=${id}`);
+    const c=await res.json();
+    document.getElementById('detalle-titulo').textContent=`${c.numero_placa} — ${c.marca} ${c.modelo}`;
+    document.getElementById('detalle-body').innerHTML=`
       <div class="detail-grid">
-        <div class="detail-item">
-          <div class="detail-item-label">Placa</div>
-          <div class="detail-item-value"><span class="placa-chip">${c.numero_placa}</span></div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-item-label">Estado actual</div>
-          <div class="detail-item-value">${badgeEstado(c.estado)}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-item-label">Marca</div>
-          <div class="detail-item-value">${c.marca}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-item-label">Modelo</div>
-          <div class="detail-item-value">${c.modelo}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-item-label">Año</div>
-          <div class="detail-item-value">${c.anio}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-item-label">Capacidad</div>
-          <div class="detail-item-value">${c.capacidad_kg ? Number(c.capacidad_kg).toLocaleString('es-GT') + ' kg' : 'No especificada'}</div>
-        </div>
-        <div class="detail-item detail-full">
-          <div class="detail-item-label">Colonia asignada</div>
-          <div class="detail-item-value">${c.colonia_nombre || 'Sin colonia asignada'}</div>
-        </div>
-        <div class="detail-item detail-full">
-          <div class="detail-item-label">Fecha de registro</div>
-          <div class="detail-item-value" style="font-weight:400;font-size:13px">${formatFecha(c.created_at)}</div>
-        </div>
+        <div class="detail-item"><div class="detail-item-label">Placa</div><div class="detail-item-value"><span class="placa-chip">${c.numero_placa}</span></div></div>
+        <div class="detail-item"><div class="detail-item-label">Estado</div><div class="detail-item-value">${badgeEstado(c.estado)}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Marca</div><div class="detail-item-value">${c.marca}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Modelo</div><div class="detail-item-value">${c.modelo}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Año</div><div class="detail-item-value">${c.anio}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Capacidad</div><div class="detail-item-value">${c.capacidad_kg?Number(c.capacidad_kg).toLocaleString('es-GT')+' kg':'No especificada'}</div></div>
+        <div class="detail-item detail-full"><div class="detail-item-label">Colonia asignada</div><div class="detail-item-value">${c.colonia_nombre||'Sin colonia asignada'}</div></div>
+        <div class="detail-item detail-full"><div class="detail-item-label">Fecha de registro</div><div class="detail-item-value" style="font-weight:400;font-size:13px">${formatFecha(c.created_at)}</div></div>
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;border-top:1.5px solid var(--border);padding-top:18px">
-        <a href="combustible.html?camion=${c.id_camion}&placa=${encodeURIComponent(c.numero_placa)}"
-           class="btn btn-fuel">⛽ Ver combustible</a>
+        <a href="combustible.html?camion=${c.id_camion}&placa=${encodeURIComponent(c.numero_placa)}" class="btn btn-fuel">⛽ Ver combustible</a>
         <button class="btn btn-primary" onclick="cerrarModal('modal-detalle')">Cerrar</button>
       </div>`;
-  } catch(err) {
-    document.getElementById('detalle-body').innerHTML =
-      `<p style="color:var(--rojo);font-size:13px;padding:4px 0">✗ Error al cargar el detalle del camión</p>`;
-  }
+  } catch(e) { document.getElementById('detalle-body').innerHTML=`<p style="color:var(--rojo);font-size:13px">✗ Error al cargar el detalle</p>`; }
 }
 
-function abrirModalRegistro() { abrirModal('modal-registro'); }
-function abrirModal(id)  { document.getElementById(id).classList.add('open'); }
-function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
-
-document.querySelectorAll('.modal-overlay').forEach(o => {
-  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
-});
-
-function mostrarAlerta(id, msg) {
-  const el = document.getElementById(id);
-  el.querySelector('span').textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 4500);
-}
-function mostrarAlertaModal(id, msg) {
-  const el = document.getElementById(id);
-  el.querySelector('span').textContent = msg;
-  el.classList.add('show');
-}
-function ocultarAlerta(id) { document.getElementById(id).classList.remove('show'); }
-
-function formatFecha(str) {
-  if (!str) return '—';
-  return new Date(str).toLocaleDateString('es-GT', { day:'2-digit', month:'long', year:'numeric' });
-}
+function abrirModalRegistro(){abrirModal('modal-registro');}
+function abrirModal(id){document.getElementById(id).classList.add('open');}
+function cerrarModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+function mostrarAlerta(id,msg){const el=document.getElementById(id);el.querySelector('span').textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),4500);}
+function mostrarAlertaModal(id,msg){const el=document.getElementById(id);el.querySelector('span').textContent=msg;el.classList.add('show');}
+function ocultarAlerta(id){document.getElementById(id).classList.remove('show');}
+function formatFecha(str){if(!str)return'—';return new Date(str).toLocaleDateString('es-GT',{day:'2-digit',month:'long',year:'numeric'});}
 </script>
 </body>
 </html>

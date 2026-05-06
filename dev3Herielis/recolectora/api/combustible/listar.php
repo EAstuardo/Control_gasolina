@@ -4,45 +4,31 @@ header('Access-Control-Allow-Origin: *');
 
 require_once __DIR__ . '/../../config/db.php';
 
-// Filtro opcional por camión
 $idCamion = isset($_GET['id_camion']) ? (int) $_GET['id_camion'] : null;
 
 try {
-    if ($idCamion) {
-        $stmt = $pdo->prepare("
-            SELECT
-                cb.id_carga,
-                cb.id_camion,
-                cb.fecha,
-                cb.litros,
-                cb.precio_litro,
-                cb.total_pago,
-                cb.proveedor,
-                cb.notas,
-                cb.ruta_imagen,
-                cb.created_at
-            FROM combustible cb
-            WHERE cb.id_camion = ?
-            ORDER BY cb.fecha DESC, cb.created_at DESC
-        ");
-        $stmt->execute([$idCamion]);
-    } else {
-        $stmt = $pdo->query("
-            SELECT
-                cb.id_carga,
-                cb.id_camion,
-                cb.fecha,
-                cb.litros,
-                cb.precio_litro,
-                cb.total_pago,
-                cb.proveedor,
-                cb.notas,
-                cb.ruta_imagen,
-                cb.created_at
-            FROM combustible cb
-            ORDER BY cb.fecha DESC, cb.created_at DESC
-        ");
-    }
+    $where = $idCamion ? "WHERE cb.id_camion = $idCamion" : "";
+
+    $stmt = $pdo->query("
+        SELECT
+            cb.id_combustible           AS id_carga,
+            cb.id_camion,
+            cb.fecha,
+            cb.litros,
+            ROUND(cb.costo_total / NULLIF(cb.litros, 0), 2) AS precio_litro,
+            cb.costo_total              AS total_pago,
+            cb.tipo_combustible         AS proveedor,
+            cb.observaciones            AS notas,
+            NULL                        AS ruta_imagen,
+            cb.created_at,
+            cam.numero_placa,
+            cam.marca,
+            cam.modelo
+        FROM combustible cb
+        LEFT JOIN camiones cam ON cam.id_camion = cb.id_camion
+        $where
+        ORDER BY cb.fecha DESC, cb.created_at DESC
+    ");
 
     echo json_encode($stmt->fetchAll());
 } catch (PDOException $e) {
